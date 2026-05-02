@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { supabase } from '@/lib/supabase/browser';
+import { createClient } from '@/lib/supabase/browser';
 import { useAuth } from '@/components/AuthProvider';
 import Header from '@/components/Header';
 import { Sonho } from '@/lib/types';
@@ -33,6 +33,7 @@ export default function HistoricoPage() {
 
   const fetchSonhos = useCallback(async () => {
     if (!user) return;
+    const supabase = createClient();
     const { data } = await supabase
       .from('sonhos')
       .select('*')

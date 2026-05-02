@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase/browser';
+import { createClient } from '@/lib/supabase/browser';
 
 export default function Home() {
   const router = useRouter();
@@ -11,6 +11,7 @@ export default function Home() {
 
   useEffect(() => {
     if (doneRef.current) return;
+    const supabase = createClient();
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         doneRef.current = true;

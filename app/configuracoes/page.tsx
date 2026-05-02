@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/components/AuthProvider';
 import Header from '@/components/Header';
-import { supabase } from '@/lib/supabase/browser';
+import { createClient } from '@/lib/supabase/browser';
 import { User, Mail, Key, Save, Moon, Crown, Trash2, AlertTriangle } from 'lucide-react';
 
 const signoLabels: Record<string, string> = {
@@ -48,7 +48,7 @@ export default function ConfiguracoesPage() {
     if (!user || !nome.trim()) return;
     setSalvando(true);
     setSalvo(false);
-
+    const supabase = createClient();
     const { error } = await supabase
       .from('perfis')
       .update({ nome: nome.trim(), signo: signo || null })
@@ -71,7 +71,7 @@ export default function ConfiguracoesPage() {
     }
     setErroSenha('');
     setSenhaAtualizando(true);
-
+    const supabase = createClient();
     const { error } = await supabase.auth.updateUser({ password: novaSenha });
 
     if (error) {
@@ -86,7 +86,7 @@ export default function ConfiguracoesPage() {
 
   const handleDeletarConta = async () => {
     if (!user) return;
-    
+    const supabase = createClient();
     await supabase.from('sonhos').delete().eq('user_id', user.id);
     await supabase.from('perfis').delete().eq('id', user.id);
     await supabase.auth.signOut();

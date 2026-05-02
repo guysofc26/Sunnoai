@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { supabase } from '@/lib/supabase/browser';
+import { createClient } from '@/lib/supabase/browser';
 import { User } from '@supabase/supabase-js';
 import { Perfil } from '@/lib/types';
 
@@ -32,6 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (perfilFetchedRef.current === userId) return;
     perfilFetchedRef.current = userId;
 
+    const supabase = createClient();
     const { data, error } = await supabase
       .from('perfis')
       .select('*')
@@ -41,6 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (data) {
       setPerfil(data);
     } else if (error?.code === 'PGRST116') {
+      const supabase = createClient();
       const { data: criado } = await supabase
         .from('perfis')
         .upsert({
@@ -63,6 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isInitialLoadDone.current) return;
 
+    const supabase = createClient();
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
@@ -99,6 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [fetchPerfil]);
 
   const signOut = async () => {
+    const supabase = createClient();
     await supabase.auth.signOut();
     setUser(null);
     setPerfil(null);

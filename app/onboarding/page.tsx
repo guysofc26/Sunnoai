@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '@/lib/supabase/browser';
+import { createClient } from '@/lib/supabase/browser';
 import { useAuth } from '@/components/AuthProvider';
 import { Star, Moon, Sparkles, ArrowRight, CheckCircle } from 'lucide-react';
 import type { Signo } from '@/lib/types';
@@ -74,6 +74,7 @@ export default function OnboardingPage() {
 
     setLoadingSubmit(true);
     try {
+      const supabase = createClient();
       const { error } = await supabase
         .from('perfis')
         .update({

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { supabase } from '@/lib/supabase/browser';
+import { createClient } from '@/lib/supabase/browser';
 import { Moon, ArrowLeft, Sparkles, Star } from 'lucide-react';
 import Link from 'next/link';
 import type { Signo } from '@/lib/types';
@@ -43,6 +43,7 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (doneRef.current) return;
+    const supabase = createClient();
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         doneRef.current = true;
@@ -57,6 +58,7 @@ export default function AuthPage() {
     setError('');
 
     try {
+      const supabase = createClient();
       if (isSignUp) {
         if (!nome.trim() || !signoSelecionado) {
           setError('Por favor, preencha seu nome e selecione seu signo.');
