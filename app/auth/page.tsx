@@ -39,6 +39,7 @@ export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const doneRef = useRef(false);
 
   useEffect(() => {
@@ -56,6 +57,7 @@ export default function AuthPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccess('');
 
     try {
       const supabase = createClient();
@@ -69,31 +71,20 @@ export default function AuthPage() {
         const { error: signUpError, data } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            data: {
+              nome: nome.trim(),
+              signo: signoSelecionado,
+              onboarding_completed: true,
+            },
+          },
         });
         if (signUpError) throw signUpError;
 
         if (data.user) {
-          const { error: perfilError } = await supabase
-            .from('perfis')
-            .upsert({
-              id: data.user.id,
-              email: data.user.email || email,
-              nome: nome.trim(),
-              signo: signoSelecionado,
-              plano: 'gratis',
-              creditos: 3,
-              onboarding_completed: true,
-            }, { onConflict: 'id' });
-
-          if (perfilError) {
-            setError('Erro ao criar perfil. Tente novamente.');
-            setLoading(false);
-            return;
-          }
-
-          setTimeout(() => {
-            router.push('/dashboard');
-          }, 100);
+          setSuccess('Conta criada! Verifique seu e-mail para confirmar o cadastro.');
+          setLoading(false);
+          return;
         }
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -239,6 +230,16 @@ export default function AuthPage() {
                 minLength={6}
               />
             </div>
+
+            {success && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-green-400 text-sm text-center"
+              >
+                {success}
+              </motion.p>
+            )}
 
             {error && (
               <motion.p

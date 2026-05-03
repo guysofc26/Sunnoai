@@ -11,6 +11,8 @@ export async function GET(request: Request) {
     const { error, data } = await supabase.auth.exchangeCodeForSession(code);
     
     if (!error && data?.user) {
+      const metadata = data.user.user_metadata || {};
+      
       const { data: perfil } = await supabase
         .from('perfis')
         .select('onboarding_completed')
@@ -21,11 +23,16 @@ export async function GET(request: Request) {
         await supabase.from('perfis').insert({
           id: data.user.id,
           email: data.user.email!,
-          nome: '',
+          nome: metadata.nome || '',
           plano: 'gratis',
           creditos: 3,
-          onboarding_completed: false,
+          signo: metadata.signo || null,
+          onboarding_completed: !!metadata.onboarding_completed,
         });
+        
+        if (metadata.onboarding_completed) {
+            return NextResponse.redirect(`${origin}/dashboard`);
+        }
         return NextResponse.redirect(`${origin}/onboarding`);
       }
 
